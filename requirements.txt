@@ -5,3 +5,4 @@ imutils==0.5.4
 requests==2.32.3
 pywhatkit==5.4
 streamlit==1.33.0
+tensorflow==2.17.0
