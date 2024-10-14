@@ -4,14 +4,12 @@ from keras.models import load_model
 import imutils
 import requests
 import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
-from email.mime.multipart import MIMEMultipart
-import pywhatkit 
 import streamlit as st
 import tempfile
+import pywhatkit
+
 lock = 0
+
 # Function to calculate mean squared loss
 def mean_squared_loss(x1, x2):
     difference = x1 - x2
@@ -22,25 +20,6 @@ def mean_squared_loss(x1, x2):
     distance = np.sqrt(Sum)
     mean_distance = distance / n_samples
     return mean_distance
-
-# Function to send email with an image attachment
-def SendMail(img_file_name):
-    img_data = open(img_file_name, 'rb').read()
-    msg = MIMEMultipart()
-    msg['Subject'] = 'Abnormal Event Detected'
-    msg['From'] = ''  # Replace with your sender email
-    msg['To'] = ''  # Replace with recipient email
-
-    text = MIMEText("An abnormal event has been detected. Please check the attached image.")
-    msg.attach(text)
-    image = MIMEImage(img_data, name=os.path.basename(img_file_name))
-    msg.attach(image)
-
-    s = smtplib.SMTP('smtp.gmail.com', 587)
-    s.starttls()
-    s.login(msg['From'], "")  # Replace with your email password
-    s.sendmail(msg['From'], [msg['To']], msg.as_string())
-    s.quit()
 
 # Load the model
 model = load_model("saved_model.h5")
@@ -111,33 +90,30 @@ if uploaded_file is not None:
         if loss > threshold1:
             # Save the current frame as an image
             phone_number = "+"  # Replace with the recipient's phone number
-            message = "Hello, this is a test message sent via security system!. There is Abnormal activity detected"
-            
+            message = "Hello, this is a test message sent via security system! Abnormal activity detected."
+
             # Send the message
             if lock == 0:
                 pywhatkit.sendwhatmsg_instantly(phone_number, message)
                 lock = 1
+
             img_filename = f"frame_{frame_count}.jpg"
             cv2.imwrite(img_filename, frame_resized)
 
-            # Send email with the image attachment
+            # Optional: Uncomment for Email or SMS notifications
             # SendMail(img_filename)
-
             # Send SMS notification
-            resp = requests.post('https://textbelt.com/text', {
-                'phone': 'MOBILE NO',
-                'message': 'Abnormal Event Detected',
-                'key': 'textbelt',
-            })
-            st.write(resp.json())
+            # resp = requests.post('https://textbelt.com/text', {
+            #     'phone': 'MOBILE NO',
+            #     'message': 'Abnormal Event Detected',
+            #     'key': 'textbelt',
+            # })
+            # st.write(resp.json())
+            
             st.write('Abnormal Event Detected')
 
         # Display the video frame
         st.image(frame_resized, channels="BGR")
-
-        # Exit loop on 'q' key press
-        if cv2.waitKey(10) & 0xFF == ord('q'):
-            break
 
     # Release the video capture and destroy windows
     cap.release()
