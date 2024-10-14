@@ -166,7 +166,6 @@ python-dateutil==2.9.0.post0
 pytweening==1.2.0
 pytz==2024.1
 pywhatkit==5.4
-pywin32==306
 PyYAML==6.0.2
 pyzmq==26.0.3
 quantities==0.14.1
